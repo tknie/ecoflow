@@ -59,7 +59,6 @@ type Client struct {
 	httpClient  *http.Client //can be customized if required
 	accessToken string
 	secretToken string
-	ecoflowAPI  string
 }
 
 type DeviceListResponse struct {
@@ -227,7 +226,7 @@ func NewHttpRequest(httpClient *http.Client, method string, uri string, params m
 // GetDeviceList executes a request to get the list of devises linked to the user account. Shared devices are not included
 // If the response parameter "code" is not 0, then there is an error. Error code and error message are returned
 func (c *Client) GetDeviceList(ctx context.Context) (*DeviceListResponse, error) {
-	request := NewHttpRequest(c.httpClient, "GET", c.ecoflowAPI+deviceListPath, nil, c.accessToken, c.secretToken)
+	request := NewHttpRequest(c.httpClient, "GET", ecoflowAPI+deviceListPath, nil, c.accessToken, c.secretToken)
 	response, err := request.Execute(ctx)
 	if err != nil {
 		return nil, err
@@ -308,7 +307,7 @@ func (c *Client) GetDeviceAllParameters(ctx context.Context, deviceSn string) (m
 	requestParams := make(map[string]interface{})
 	requestParams["sn"] = deviceSn
 
-	request := NewHttpRequest(c.httpClient, "GET", c.ecoflowAPI+getAllQuotePath, requestParams, c.accessToken, c.secretToken)
+	request := NewHttpRequest(c.httpClient, "GET", ecoflowAPI+getAllQuotePath, requestParams, c.accessToken, c.secretToken)
 	response, err := request.Execute(ctx)
 	if err != nil {
 		fmt.Println("Error ... http request:", err)

@@ -30,8 +30,6 @@ var ecoclient *MqttClient
 
 var devices *DeviceListResponse
 
-var MqttDisable = false
-
 var MessageHandler mqtt.MessageHandler
 
 // InitMqtt initialize MQTT listener

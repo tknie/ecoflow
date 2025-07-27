@@ -23,8 +23,8 @@ import (
 
 var quit = make(chan struct{})
 
-// refreshDeviceList refresh device list using HTTP device list request
-func refreshDeviceList(client *Client) {
+// RefreshDeviceList refresh device list using HTTP device list request
+func (client *Client) RefreshDeviceList() {
 	//get all linked ecoflow devices. Returns SN and online status
 	list, err := client.GetDeviceList(context.Background())
 	if err != nil {
@@ -73,7 +73,7 @@ func (client *Client) SetEnvironmentPowerConsumption(converter string, value flo
 func (c *Client) SetDeviceParameter(ctx context.Context, request map[string]interface{}) (*CmdSetResponse, error) {
 	slog.Debug("SetDeviceParameter", "request", request)
 
-	r := NewHttpRequest(c.httpClient, "PUT", c.ecoflowAPI+setDeviceFunctionPath, request, c.accessToken, c.secretToken)
+	r := NewHttpRequest(c.httpClient, "PUT", ecoflowAPI+setDeviceFunctionPath, request, c.accessToken, c.secretToken)
 
 	response, err := r.Execute(ctx)
 	if err != nil {
