@@ -16,32 +16,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
-	"net/http"
 	"time"
 
-	"github.com/tknie/log"
 	"github.com/tknie/services"
 )
 
 var quit = make(chan struct{})
-
-// GetDeviceAllParameters get all device parameters for a specific device
-// Use HTTP request to get the parameter information
-func GetDeviceAllParameters(client *Client, deviceSn string) error {
-	requestParams := make(map[string]interface{})
-	requestParams["sn"] = deviceSn
-	accessKey := client.accessToken
-	secretKey := client.secretToken
-
-	request := NewHttpRequest(&http.Client{}, "GET", "https://api.ecoflow.com/iot-open/sign/device/quota/all", requestParams, accessKey, secretKey)
-	response, err := request.Execute(context.Background())
-
-	if err != nil {
-		return err
-	}
-	log.Log.Debugf("Response: %s", string(response))
-	return nil
-}
 
 // refreshDeviceList refresh device list using HTTP device list request
 func refreshDeviceList(client *Client) {
@@ -93,7 +73,7 @@ func (client *Client) SetEnvironmentPowerConsumption(converter string, value flo
 func (c *Client) SetDeviceParameter(ctx context.Context, request map[string]interface{}) (*CmdSetResponse, error) {
 	slog.Debug("SetDeviceParameter", "request", request)
 
-	r := NewHttpRequest(c.httpClient, "PUT", c.baseUrl+setDeviceFunctionPath, request, c.accessToken, c.secretToken)
+	r := NewHttpRequest(c.httpClient, "PUT", c.ecoflowAPI+setDeviceFunctionPath, request, c.accessToken, c.secretToken)
 
 	response, err := r.Execute(ctx)
 	if err != nil {
