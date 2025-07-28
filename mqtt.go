@@ -13,13 +13,8 @@ package ecoflow
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"math"
 	reflect "reflect"
-	"sort"
-	"strings"
-	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/tknie/log"
@@ -29,8 +24,6 @@ import (
 var ecoclient *MqttClient
 
 var devices *DeviceListResponse
-
-var MessageHandler mqtt.MessageHandler
 
 // InitMqtt initialize MQTT listener
 func InitMqtt(user, password string) {
@@ -52,49 +45,6 @@ func InitMqtt(user, password string) {
 	log.Log.Debugf("Wait for Ecoflow disconnect")
 	services.ServerMessage("Waiting for MQTT data")
 
-}
-
-// insertMqttData prepare MQTT data into column data for database storage
-func insertMqttData(data map[string]interface{}) ([]string, [][]any) {
-	keys := make([]string, 0)
-	for k := range data {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	columns := make([]any, 0)
-	// prefix := ""
-	fields := make([]string, 0)
-	for _, k := range keys {
-		v := data[k]
-		name := "eco_" + strings.ReplaceAll(k, ".", "_")
-		fields = append(fields, name)
-		log.Log.Debugf(" %s=%v %T -> %s\n", k, v, v, name)
-		switch val := v.(type) {
-		case string:
-			columns = append(columns, val)
-		case float64:
-			if val == math.Trunc(val) {
-				columns = append(columns, int64(val))
-			} else {
-				columns = append(columns, val)
-			}
-		case time.Time:
-			columns = append(columns, val)
-		case []interface{}, map[string]interface{}:
-			b, err := json.Marshal(val)
-			if err != nil {
-				services.ServerMessage("Error marshal: %#v", val)
-				columns = append(columns, nil)
-			} else {
-				s := string(b)
-				columns = append(columns, s)
-			}
-		default:
-			services.ServerMessage("Unknown type %s=%T\n", k, v)
-			log.Log.Errorf("Unknown type %s=%T\n", k, v)
-		}
-	}
-	return fields, [][]any{columns}
 }
 
 // displayHeader log output display message header of MQTT Ecoflow data

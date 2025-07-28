@@ -12,12 +12,27 @@
 package ecoflow
 
 import (
+	"bytes"
 	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"strings"
+	sync "sync"
 	"time"
 
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/tknie/log"
+	"github.com/tknie/services"
 	"google.golang.org/protobuf/proto"
 )
+
+const layout = "2006-01-02 15:04:05.000"
+
+type statMqtt struct {
+	mu          sync.Mutex
+	mqttCounter uint64
+	httpCounter uint64
+}
 
 type Entry struct {
 	object       interface{}
@@ -29,8 +44,19 @@ type ProtocolHandler interface {
 }
 
 var caller ProtocolHandler
+var mqttStatMap = sync.Map{}
+var mapStatMqtt = make(map[string]*statMqtt)
+var Callback func(serialNumber string, data map[string]interface{})
 
-func displayPayload(sn string, payload []byte) bool {
+func StatMqtt() string {
+	var buffer bytes.Buffer
+	for k, v := range mapStatMqtt {
+		buffer.WriteString(fmt.Sprintf("  %s got http=%03d mqtt=%03d messages\n", k, v.httpCounter, v.mqttCounter))
+	}
+	return buffer.String()
+}
+
+func DisplayPayload(sn string, payload []byte) bool {
 	log.Log.Debugf("Base64: %s", base64.RawStdEncoding.EncodeToString(payload))
 	log.Log.Debugf("Payload %s", FormatByteBuffer("MQTT Body", payload))
 
@@ -86,4 +112,94 @@ func displayPayload(sn string, payload []byte) bool {
 		}
 	}
 	return true
+}
+
+func GetStatEntry(serialNumber string) *statMqtt {
+	if s, ok := mapStatMqtt[serialNumber]; ok {
+		return s
+	} else {
+		stat := &statMqtt{}
+		mapStatMqtt[serialNumber] = stat
+		return stat
+	}
+
+}
+
+// MessageHandler message handle called if MQTT event entered
+func MessageHandler(_ mqtt.Client, msg mqtt.Message) {
+	serialNumber := getSnFromTopic(msg.Topic())
+	stat := GetStatEntry(serialNumber)
+	stat.mu.Lock()
+	defer stat.mu.Unlock()
+
+	stat.mqttCounter++
+
+	if e, ok := mqttStatMap.Load(msg.Topic()); ok {
+		mqttStatMap.Store(msg.Topic(), e.(int)+1)
+	} else {
+		mqttStatMap.Store(msg.Topic(), 1)
+	}
+	if stat.mqttCounter%350 == 0 {
+		services.ServerMessage("Received MQTT msgs: %04d", stat.mqttCounter)
+		mqttStatMap.Range(func(key, value any) bool {
+			log.Log.Infof("Received message of device %s = %d at %v\n", key, value.(int), time.Now().Format(layout))
+			return true
+		})
+	}
+
+	log.Log.Debugf("received message on topic %s; body (retain: %t):\n%s", msg.Topic(),
+		msg.Retained(), FormatByteBuffer("MQTT Body", msg.Payload()))
+	payload := msg.Payload()
+
+	data := make(map[string]interface{})
+	err := json.Unmarshal(payload, &data)
+	if err == nil {
+		log.Log.Debugf("JSON: %v", string(payload))
+		if log.IsDebugLevel() {
+			cmdId := int(data["cmdId"].(float64))
+			log.Log.Debugf("-> CmdId   %03d", cmdId)
+			log.Log.Debugf("-> CmdFunc %f", data["cmdFunc"].(float64))
+			log.Log.Debugf("-> Version %s", data["version"].(string))
+			log.Log.Debugf("ID           : %f", data["id"].(float64))
+		}
+		if _, ok := data["params"]; ok {
+			data = data["params"].(map[string]interface{})
+		}
+		if _, ok := data["serial_number"]; !ok {
+			data["serial_number"] = serialNumber
+		}
+		if _, ok := data["timestamp"]; !ok {
+			data["timestamp"] = time.Now()
+		}
+		Callback(serialNumber, data)
+
+		return
+	}
+
+	start := 0
+	end := len(payload)
+	index := bytes.Index(payload, []byte(serialNumber))
+	if index != -1 {
+		end = index + len(serialNumber)
+	}
+	log.Log.Debugf("Serial index 1: %d/%d %d:%d", index, len(payload), start, end)
+	DisplayPayload(serialNumber, payload[start:end])
+	start = end
+	if len(payload) > index+len(serialNumber) {
+		index = bytes.Index(payload[end:], []byte(serialNumber))
+		if index != -1 {
+			end = end + index + len(serialNumber)
+		} else {
+			end = len(payload)
+		}
+		log.Log.Debugf("Serial index 2: %d", index)
+		DisplayPayload(serialNumber, payload[start:end])
+	}
+
+}
+
+// getSnFromTopic extract serial number from topic
+func getSnFromTopic(topic string) string {
+	topicStr := strings.Split(topic, "/")
+	return topicStr[len(topicStr)-1]
 }

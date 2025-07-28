@@ -21,8 +21,6 @@ import (
 	"github.com/tknie/services"
 )
 
-var quit = make(chan struct{})
-
 // RefreshDeviceList refresh device list using HTTP device list request
 func (client *Client) RefreshDeviceList() {
 	//get all linked ecoflow devices. Returns SN and online status
@@ -32,6 +30,11 @@ func (client *Client) RefreshDeviceList() {
 	} else {
 		devices = list
 	}
+}
+
+// GetDevices return response of device list
+func (client *Client) GetDevices() *DeviceListResponse {
+	return devices
 }
 
 // SetEnvironmentPowerConsumption set new environment consumption value
