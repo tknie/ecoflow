@@ -31,7 +31,6 @@ const layout = "2006-01-02 15:04:05.000"
 type statMqtt struct {
 	mu          sync.Mutex
 	mqttCounter uint64
-	httpCounter uint64
 }
 
 type Entry struct {
@@ -51,7 +50,7 @@ var Callback func(serialNumber string, data map[string]interface{})
 func StatMqtt() string {
 	var buffer bytes.Buffer
 	for k, v := range mapStatMqtt {
-		buffer.WriteString(fmt.Sprintf("  %s got http=%03d mqtt=%03d messages\n", k, v.httpCounter, v.mqttCounter))
+		buffer.WriteString(fmt.Sprintf("  %s got mqtt=%03d messages\n", k, v.mqttCounter))
 	}
 	return buffer.String()
 }
