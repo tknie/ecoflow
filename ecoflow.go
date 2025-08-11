@@ -16,6 +16,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/tknie/services"
@@ -71,6 +72,37 @@ func (client *Client) SetEnvironmentPowerConsumption(converter string, value flo
 	} else {
 		services.ServerMessage("Set device parameter to %f: %s", value, cmd.Message)
 	}
+}
+
+func (client *Client) SetCarACOn(serialNumber string, turnOn bool) (*CmdSetResponse, error) {
+	params := make(map[string]interface{}, 1)
+	if turnOn {
+		params["enabled"] = 1
+	} else {
+		params["enabled"] = 0
+	}
+	cmdReq := &CmdSetRequest{
+		Id:          fmt.Sprint(time.Now().UnixMilli()),
+		Sn:          strings.ToUpper(serialNumber),
+		ModuleType:  5,
+		OperateType: "mpptCar",
+		Params:      params,
+	}
+	jsonData, err := json.Marshal(cmdReq)
+	if err != nil {
+		services.ServerMessage("Error marshal data: %v", err)
+		return nil, err
+	}
+
+	var req map[string]interface{}
+
+	err = json.Unmarshal(jsonData, &req)
+	if err != nil {
+		services.ServerMessage("Error unmarshal data: %v", err)
+		return nil, err
+	}
+
+	return client.SetDeviceParameter(context.Background(), req)
 }
 
 func (c *Client) SetDeviceParameter(ctx context.Context, request map[string]interface{}) (*CmdSetResponse, error) {
