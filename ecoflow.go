@@ -22,6 +22,13 @@ import (
 	"github.com/tknie/services"
 )
 
+type deviceInfo struct {
+	serialNumber string
+	turnOn       bool
+	operateType  string
+	moduleType   ModuleType
+}
+
 // RefreshDeviceList refresh device list using HTTP device list request
 func (client *Client) RefreshDeviceList() {
 	//get all linked ecoflow devices. Returns SN and online status
@@ -74,18 +81,18 @@ func (client *Client) SetEnvironmentPowerConsumption(converter string, value flo
 	}
 }
 
-func (client *Client) SetCarACOn(serialNumber string, turnOn bool) (*CmdSetResponse, error) {
+func (client *Client) sendEnable(d *deviceInfo) (*CmdSetResponse, error) {
 	params := make(map[string]interface{}, 1)
-	if turnOn {
+	if d.turnOn {
 		params["enabled"] = 1
 	} else {
 		params["enabled"] = 0
 	}
 	cmdReq := &CmdSetRequest{
 		Id:          fmt.Sprint(time.Now().UnixMilli()),
-		Sn:          strings.ToUpper(serialNumber),
-		ModuleType:  5,
-		OperateType: "mpptCar",
+		Sn:          strings.ToUpper(d.serialNumber),
+		ModuleType:  d.moduleType,
+		OperateType: d.operateType,
 		Params:      params,
 	}
 	jsonData, err := json.Marshal(cmdReq)
@@ -103,6 +110,21 @@ func (client *Client) SetCarACOn(serialNumber string, turnOn bool) (*CmdSetRespo
 	}
 
 	return client.SetDeviceParameter(context.Background(), req)
+}
+
+func (client *Client) SetCarACOn(serialNumber string, turnOn bool) (*CmdSetResponse, error) {
+	return client.sendEnable(&deviceInfo{serialNumber: serialNumber, turnOn: turnOn,
+		moduleType: 5, operateType: "mpptCar"})
+}
+
+func (client *Client) SetACOn(serialNumber string, turnOn bool) (*CmdSetResponse, error) {
+	return client.sendEnable(&deviceInfo{serialNumber: serialNumber, turnOn: turnOn,
+		moduleType: 1, operateType: "newAcAutoOnCfg"})
+}
+
+func (client *Client) SetUSBOn(serialNumber string, turnOn bool) (*CmdSetResponse, error) {
+	return client.sendEnable(&deviceInfo{serialNumber: serialNumber, turnOn: turnOn,
+		moduleType: 1, operateType: "dcOutCfg"})
 }
 
 func (c *Client) SetDeviceParameter(ctx context.Context, request map[string]interface{}) (*CmdSetResponse, error) {
