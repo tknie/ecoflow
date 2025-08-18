@@ -301,9 +301,15 @@ func (r *HttpRequest) Execute(ctx context.Context) ([]byte, error) {
 	return io.ReadAll(resp.Body)
 }
 
-// GetDeviceAllParameters get all device parameters for a specific device
+// GetDevice get all device parameters for a specific device
 // Use HTTP request to get the parameter information
-func (c *Client) GetDeviceAllParameters(ctx context.Context, deviceSn string) (map[string]interface{}, error) {
+func (c *Client) GetDeviceAllParameters(ctx context.Context, deviceSn, specific string) (map[string]interface{}, error) {
+	return c.GetDeviceInfo(ctx, deviceSn, "data")
+}
+
+// GetDevice get all device parameters for a specific device
+// Use HTTP request to get the parameter information
+func (c *Client) GetDeviceInfo(ctx context.Context, deviceSn, specific string) (map[string]interface{}, error) {
 	requestParams := make(map[string]interface{})
 	requestParams["sn"] = deviceSn
 
@@ -324,11 +330,12 @@ func (c *Client) GetDeviceAllParameters(ctx context.Context, deviceSn string) (m
 		return nil, fmt.Errorf("can't get parameters, error code %s", code)
 	}
 
-	dataMap, ok := jsonData["data"].(map[string]interface{})
-
-	if !ok {
+	if specific != "" {
+		if tmpMap, ok := jsonData[specific].(map[string]interface{}); ok {
+			return tmpMap, nil
+		}
 		return nil, errors.New("response is not valid, can't process it")
 	}
 
-	return dataMap, err
+	return jsonData, err
 }
