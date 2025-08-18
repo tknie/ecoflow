@@ -303,7 +303,7 @@ func (r *HttpRequest) Execute(ctx context.Context) ([]byte, error) {
 
 // GetDevice get all device parameters for a specific device
 // Use HTTP request to get the parameter information
-func (c *Client) GetDeviceAllParameters(ctx context.Context, deviceSn, specific string) (map[string]interface{}, error) {
+func (c *Client) GetDeviceAllParameters(ctx context.Context, deviceSn string) (map[string]interface{}, error) {
 	return c.GetDeviceInfo(ctx, deviceSn, "data")
 }
 
