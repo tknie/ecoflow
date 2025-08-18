@@ -330,9 +330,14 @@ func (c *Client) GetDeviceInfo(ctx context.Context, deviceSn, specific string) (
 		return nil, fmt.Errorf("can't get parameters, error code %s", code)
 	}
 
+	ok := false
+	if jsonData, ok = jsonData["data"].(map[string]interface{}); !ok {
+		return nil, errors.New("response is not valid, can't process it")
+	}
+
 	if specific != "" {
-		if tmpMap, ok := jsonData[specific].(map[string]interface{}); ok {
-			return tmpMap, nil
+		if jsonData, ok = jsonData[specific].(map[string]interface{}); ok {
+			return jsonData, nil
 		}
 		return nil, errors.New("response is not valid, can't process it")
 	}
