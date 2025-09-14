@@ -73,7 +73,10 @@ func DisplayPayload(sn string, payload []byte) bool {
 				log.Log.Errorf("Unable to parse pdata message: %v", err)
 			} else {
 				log.Log.Debugf("-> InverterHearbeat %s\n", ih)
-				caller.CallHandler(&Entry{object: ih, serialNumber: sn})
+
+				if caller != nil {
+					caller.CallHandler(&Entry{object: ih, serialNumber: sn})
+				}
 
 				if log.IsDebugLevel() {
 					log.Log.Debugf("DynamicWatts   %v", ih.GetDynamicWatts())
@@ -100,7 +103,9 @@ func DisplayPayload(sn string, payload []byte) bool {
 			} else {
 				log.Log.Debugf("Power Pack: %#v", pp)
 				for _, p := range pp.SysPowerStream {
-					caller.CallHandler(&Entry{object: p, serialNumber: sn})
+					if caller != nil {
+						caller.CallHandler(&Entry{object: p, serialNumber: sn})
+					}
 				}
 			}
 		default:
