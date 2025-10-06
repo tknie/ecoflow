@@ -10,7 +10,7 @@ require (
 	github.com/tknie/log v0.1.0
 	github.com/tknie/services v0.4.0
 	golang.org/x/text v0.29.0
-	google.golang.org/protobuf v1.36.9
+	google.golang.org/protobuf v1.36.10
 )
 
 require (
