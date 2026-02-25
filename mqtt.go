@@ -52,18 +52,18 @@ func displayHeader(msg *Header) {
 	if !log.IsDebugLevel() {
 		return
 	}
-	log.Log.Debugf("-> Header  %s\n", msg)
-	log.Log.Debugf("-> SM      %s\n", msg.GetDeviceSn())
-	log.Log.Debugf("-> Version %d\n", msg.GetVersion())
-	log.Log.Debugf("-> PayloadVersion %d\n", msg.GetPayloadVer())
-	log.Log.Debugf("-> SRC     %d\n", msg.GetSrc())
-	log.Log.Debugf("-> Dest    %d\n", msg.GetDest())
-	log.Log.Debugf("-> Datalen %d\n", msg.GetDataLen())
-	log.Log.Debugf("-> CmdId   %d\n", msg.GetCmdId())
-	log.Log.Debugf("-> CmdFunc %d\n", msg.GetCmdFunc())
-	log.Log.Debugf("-> DSRC    %d\n", msg.GetDSrc())
-	log.Log.Debugf("-> DDest   %d\n", msg.GetDDest())
-	log.Log.Debugf("-> NeedAcl %d\n", msg.GetNeedAck())
+	log.Log.Debugf("-> Header  %s", msg)
+	log.Log.Debugf("-> SM      %s", msg.GetDeviceSn())
+	log.Log.Debugf("-> Version %d", msg.GetVersion())
+	log.Log.Debugf("-> PayloadVersion %d", msg.GetPayloadVer())
+	log.Log.Debugf("-> SRC     %d", msg.GetSrc())
+	log.Log.Debugf("-> Dest    %d", msg.GetDest())
+	log.Log.Debugf("-> Datalen %d", msg.GetDataLen())
+	log.Log.Debugf("-> CmdId   %d", msg.GetCmdId())
+	log.Log.Debugf("-> CmdFunc %d", msg.GetCmdFunc())
+	log.Log.Debugf("-> DSRC    %d", msg.GetDSrc())
+	log.Log.Debugf("-> DDest   %d", msg.GetDDest())
+	log.Log.Debugf("-> NeedAcl %d", msg.GetNeedAck())
 }
 
 // OnConnect on connect open handler called if connetion is done

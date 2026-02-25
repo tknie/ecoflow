@@ -72,7 +72,7 @@ func DisplayPayload(sn string, payload []byte) bool {
 			if err != nil {
 				log.Log.Errorf("Unable to parse pdata message: %v", err)
 			} else {
-				log.Log.Debugf("-> InverterHearbeat %s\n", ih)
+				log.Log.Debugf("-> InverterHearbeat %s", ih)
 
 				if caller != nil {
 					caller.CallHandler(&Entry{object: ih, serialNumber: sn})
@@ -110,8 +110,8 @@ func DisplayPayload(sn string, payload []byte) bool {
 			}
 		default:
 			displayHeader(platform.Msg)
-			log.Log.Infof("Unknown Cmd ID %d -> %s\n", platform.Msg.GetCmdId(), sn)
-			log.Log.Infof("Base64: %s\n", base64.RawStdEncoding.EncodeToString(payload))
+			log.Log.Infof("Unknown Cmd ID %d -> %s", platform.Msg.GetCmdId(), sn)
+			log.Log.Infof("Base64: %s", base64.RawStdEncoding.EncodeToString(payload))
 			return false
 		}
 	}
@@ -146,12 +146,12 @@ func MessageHandler(_ mqtt.Client, msg mqtt.Message) {
 	if stat.mqttCounter%350 == 0 {
 		services.ServerMessage("Received MQTT msgs: %04d", stat.mqttCounter)
 		mqttStatMap.Range(func(key, value any) bool {
-			log.Log.Infof("Received message of device %s = %d at %v\n", key, value.(int), time.Now().Format(layout))
+			log.Log.Infof("Received message of device %s = %d at %v", key, value.(int), time.Now().Format(layout))
 			return true
 		})
 	}
 
-	log.Log.Debugf("received message on topic %s; body (retain: %t):\n%s", msg.Topic(),
+	log.Log.Debugf("received message on topic %s; body (retain: %t): %s", msg.Topic(),
 		msg.Retained(), FormatByteBuffer("MQTT Body", msg.Payload()))
 	payload := msg.Payload()
 

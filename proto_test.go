@@ -33,11 +33,11 @@ func TestProtoDecode(t *testing.T) {
 	platform := &SendHeaderMsg{}
 	err = proto.Unmarshal(dst, platform)
 	assert.NoError(t, err)
-	log.Log.Debugf("%#v\n", platform)
+	log.Log.Debugf("%#v", platform)
 	ih := &InverterHeartbeat{}
 	err = proto.Unmarshal(platform.Msg.Pdata, ih)
 	assert.NoError(t, err)
-	log.Log.Debugf("%#v\n", ih)
+	log.Log.Debugf("%#v", ih)
 	assert.Equal(t, uint32(1743087465), uint32(*ih.Timestamp))
 	assert.Equal(t, []uint8(nil), ih.unknownFields)
 }
