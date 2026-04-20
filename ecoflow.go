@@ -77,7 +77,7 @@ func (client *Client) SetEnvironmentPowerConsumption(converter string, value flo
 	if err != nil {
 		services.ServerMessage("Error set device parameter: %v", err)
 	} else {
-		services.ServerMessage("Set device parameter to %f: %s", value, cmd.Message)
+		services.ServerMessage("Set device parameter to %0.1f: %s", value, cmd.Message)
 	}
 }
 

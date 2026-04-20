@@ -162,7 +162,7 @@ func MessageHandler(_ mqtt.Client, msg mqtt.Message) {
 		if log.IsDebugLevel() {
 			cmdId := int(data["cmdId"].(float64))
 			log.Log.Debugf("-> CmdId   %03d", cmdId)
-			log.Log.Debugf("-> CmdFunc %f", data["cmdFunc"].(float64))
+			log.Log.Debugf("-> CmdFunc %0.1f", data["cmdFunc"].(float64))
 			log.Log.Debugf("-> Version %s", data["version"].(string))
 			log.Log.Debugf("ID           : %f", data["id"].(float64))
 		}

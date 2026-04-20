@@ -54,7 +54,7 @@ func TestClientMicroConverter(t *testing.T) {
 	secretKey := os.ExpandEnv(secretKey)
 	value := 150
 	if value > 600 || value < 0 {
-		services.ServerMessage("Value %f out of range in 0:1000", value)
+		services.ServerMessage("Value %0.1f out of range in 0:1000", value)
 		return
 	}
 
