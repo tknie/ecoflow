@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -70,4 +71,11 @@ func SetCarACOn(sn string, turnOn bool) {
 }
 
 func main() {
+	list := false
+	flag.BoolVar(&list, "l", false, "List all devices")
+	flag.Parse()
+
+	if list {
+		ListEcoflowDevices()
+	}
 }
