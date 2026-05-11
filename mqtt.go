@@ -26,8 +26,7 @@ var ecoclient *MqttClient
 var devices *DeviceListResponse
 
 // InitMqtt initialize MQTT listener
-func InitMqtt(user, password string) {
-	services.ServerMessage("Initialize MQTT client")
+func InitMqtt(user, password string) error {
 	configuration := MqttClientConfiguration{
 		Email:            user,
 		Password:         password,
@@ -39,12 +38,14 @@ func InitMqtt(user, password string) {
 	ecoclient, err = NewMqttClient(context.Background(), configuration)
 	if err != nil {
 		services.ServerMessage("Shuting down ... error creating MQTT client: %v", err)
-		log.Log.Fatalf("Error creating new MQTT client connection: %v", err)
+		return fmt.Errorf("Error creating newEcoflow MQTT service connection: %v", err)
 	}
-	ecoclient.Connect()
-	log.Log.Debugf("Wait for Ecoflow disconnect")
-	services.ServerMessage("Waiting for MQTT data")
-
+	err = ecoclient.Connect()
+	if err != nil {
+		return fmt.Errorf("Error connecting to Ecoflow MQTT service connection: %v", err)
+	}
+	services.ServerMessage("Registered to Ecoflow MQTT service")
+	return nil
 }
 
 // displayHeader log output display message header of MQTT Ecoflow data
@@ -90,11 +91,13 @@ func GetTypeName(myvar interface{}) string {
 // OnConnectionLost on connection lost happened
 func OnConnectionLost(_ mqtt.Client, err error) {
 	log.Log.Errorf("Error connection lost: %v", err)
+	services.ServerMessage("Connection lost to Ecoflow MQTT services... %v", err)
 }
 
 // OnReconnect on connection reconnection
 func OnReconnect(mqtt.Client, *mqtt.ClientOptions) {
 	log.Log.Infof("Reconnecting...")
+	services.ServerMessage("Reconnecting to Ecoflow MQTT services ... ")
 }
 
 func (m *MqttClient) SubscribeForParameters(deviceSn string, callback mqtt.MessageHandler) error {

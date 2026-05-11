@@ -28,6 +28,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/tknie/services"
 )
 
 const (
@@ -148,6 +150,8 @@ func processValue(prefix string, value interface{}) []string {
 		result = append(result, prefix+"="+strconv.FormatFloat(v, 'f', -1, 64))
 	case bool:
 		result = append(result, prefix+"="+strconv.FormatBool(v))
+	default:
+		services.ServerMessage("Unknown type for process value: %T", value)
 	}
 	return result
 }
