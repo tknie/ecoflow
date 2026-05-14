@@ -47,6 +47,11 @@ var mqttStatMap = sync.Map{}
 var mapStatMqtt = make(map[string]*statMqtt)
 var Callback func(serialNumber string, data map[string]interface{})
 
+const defaultStatLoop = 300
+
+var lastStatOutput = time.Now()
+var StatOutput = defaultStatLoop
+
 func StatMqtt() string {
 	var buffer bytes.Buffer
 	for k, v := range mapStatMqtt {
@@ -143,8 +148,9 @@ func MessageHandler(_ mqtt.Client, msg mqtt.Message) {
 	} else {
 		mqttStatMap.Store(msg.Topic(), 1)
 	}
-	if stat.mqttCounter%350 == 0 {
-		services.ServerMessage("Received MQTT msgs: %04d", stat.mqttCounter)
+	if StatOutput > 0 &&
+		lastStatOutput.After(time.Now().Add(time.Duration(StatOutput)*time.Second)) {
+		services.ServerMessage("Received Ecoflow MQTT msgs: %04d", stat.mqttCounter)
 		mqttStatMap.Range(func(key, value any) bool {
 			log.Log.Infof("Received message of device %s = %d at %v", key, value.(int), time.Now().Format(layout))
 			return true

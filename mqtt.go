@@ -37,7 +37,7 @@ func InitMqtt(user, password string) error {
 	var err error
 	ecoclient, err = NewMqttClient(context.Background(), configuration)
 	if err != nil {
-		services.ServerMessage("Shuting down ... error creating MQTT client: %v", err)
+		services.ServerMessage("Shuting down ... error creating Ecoflow MQTT client: %v", err)
 		return fmt.Errorf("Error creating newEcoflow MQTT service connection: %v", err)
 	}
 	err = ecoclient.Connect()
@@ -70,7 +70,7 @@ func displayHeader(msg *Header) {
 // OnConnect on connect open handler called if connetion is done
 func OnConnect(client mqtt.Client) {
 	for _, d := range devices.Devices {
-		services.ServerMessage("Subscribe for MQTT entries of device %s", d.SN)
+		services.ServerMessage("Subscribe for Ecoflow MQTT entries of device %s", d.SN)
 		err := ecoclient.SubscribeForParameters(d.SN, MessageHandler)
 		if err != nil {
 			log.Log.Errorf("Unable to subscribe for parameters %s: %v", d.SN, err)

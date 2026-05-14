@@ -34,7 +34,7 @@ func (client *Client) RefreshDeviceList() {
 	//get all linked ecoflow devices. Returns SN and online status
 	list, err := client.GetDeviceList(context.Background())
 	if err != nil {
-		services.ServerMessage("Error getting device list: %v", err)
+		services.ServerMessage("Ecoflow: Error getting device list: %v", err)
 	} else {
 		devices = list
 	}
@@ -61,7 +61,7 @@ func (client *Client) SetEnvironmentPowerConsumption(converter string, value flo
 
 	jsonData, err := json.Marshal(cmdReq)
 	if err != nil {
-		services.ServerMessage("Error marshal data: %v", err)
+		services.ServerMessage("Ecoflow: Error marshal data: %v", err)
 		return
 	}
 
@@ -69,15 +69,15 @@ func (client *Client) SetEnvironmentPowerConsumption(converter string, value flo
 
 	err = json.Unmarshal(jsonData, &req)
 	if err != nil {
-		services.ServerMessage("Error unmarshal data: %v", err)
+		services.ServerMessage("Ecoflow: Error unmarshal data: %v", err)
 		return
 	}
 	cmd, err := client.SetDeviceParameter(context.Background(), req)
 
 	if err != nil {
-		services.ServerMessage("Error set device parameter: %v", err)
+		services.ServerMessage("Ecoflow: Error set device parameter: %v", err)
 	} else {
-		services.ServerMessage("Set device parameter to %0.1f: %s", value, cmd.Message)
+		services.ServerMessage("Ecoflow: Set device power to %0.1f: %s", value, cmd.Message)
 	}
 }
 
@@ -97,7 +97,7 @@ func (client *Client) sendEnable(d *deviceInfo) (*CmdSetResponse, error) {
 	}
 	jsonData, err := json.Marshal(cmdReq)
 	if err != nil {
-		services.ServerMessage("Error marshal data: %v", err)
+		services.ServerMessage("Ecoflow: Error marshal data: %v", err)
 		return nil, err
 	}
 
@@ -105,7 +105,7 @@ func (client *Client) sendEnable(d *deviceInfo) (*CmdSetResponse, error) {
 
 	err = json.Unmarshal(jsonData, &req)
 	if err != nil {
-		services.ServerMessage("Error unmarshal data: %v", err)
+		services.ServerMessage("Ecoflow: Error unmarshal data: %v", err)
 		return nil, err
 	}
 

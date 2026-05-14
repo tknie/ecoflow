@@ -151,7 +151,7 @@ func processValue(prefix string, value interface{}) []string {
 	case bool:
 		result = append(result, prefix+"="+strconv.FormatBool(v))
 	default:
-		services.ServerMessage("Unknown type for process value: %T", value)
+		services.ServerMessage("Ecoflow: unknown type for process value: %T", value)
 	}
 	return result
 }

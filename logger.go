@@ -51,11 +51,11 @@ func StartLog(fileName string) {
 	f, err := os.OpenFile(path,
 		os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 	if err != nil {
-		services.ServerMessage("Error opening log file: %s", err)
+		services.ServerMessage("Ecoflow: Error opening log file: %s", err)
 		return
 	}
 	logRus.SetOutput(f)
 	logRus.Infof("Init logrus")
 	tlog.Log = logRus
-	services.ServerMessage("Logging initiated with '%v' level...", logRus.Level)
+	services.ServerMessage("Ecoflow: Logging initiated with '%v' level...", logRus.Level)
 }
