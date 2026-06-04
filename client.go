@@ -73,8 +73,9 @@ type DeviceListResponse struct {
 }
 
 type DeviceInfo struct {
-	SN     string `json:"sn"`
-	Online int    `json:"online"`
+	SN         string `json:"sn"`
+	DeviceName string `json:"deviceName"`
+	Online     int    `json:"online"`
 }
 
 type HttpRequest struct {
