@@ -29,6 +29,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tknie/log"
 	"github.com/tknie/services"
 )
 
@@ -237,6 +238,7 @@ func (c *Client) GetDeviceList(ctx context.Context) (*DeviceListResponse, error)
 	}
 	var deviceResponse DeviceListResponse
 
+	log.Log.Debugf("GetDeviceList response: %s", string(response))
 	err = json.Unmarshal(response, &deviceResponse)
 	if err != nil {
 		return nil, err
